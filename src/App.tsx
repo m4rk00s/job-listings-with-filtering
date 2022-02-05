@@ -56,7 +56,7 @@ function App() {
       case "add-filter":
         return {
           ...state,
-          filters: state.filters.concat([action.tag]),
+          filters: [...new Set(state.filters.concat([action.tag]))],
         };
       case "clear-filter":
         return {
@@ -106,74 +106,136 @@ function App() {
     }
   }
 
+  function filteredJobPosts(state: State): JobPost[] {
+    return state.posts.filter((post) => {
+      return state.filters.every((tag) => {
+        return (
+          post.role === tag ||
+          post.level === tag ||
+          post.languages.find((lang) => lang === tag) !== undefined ||
+          post.tools.find((tool) => tool === tag) !== undefined
+        );
+      });
+    });
+  }
+
   return (
-    <div className="h-full bg-[#EFFAFA]">
+    <div className="bg-[#EFFAFA] min-h-full">
       <div className="bg-[#5CA5A5]">
         <img src={BgHeaderMobile} alt="" />
       </div>
 
-      <div className="px-6 py-8 flex flex-col gap-4">
-        {state.posts.map((post) => {
-          return (
-            <div
-              key={post.id}
-              className={[
-                "bg-white rounded-md shadow-card p-6 mt-6",
-                post.new ? "border-l-[5px] border-l-[#5CA5A5]" : "",
-              ].join(" ")}
-            >
-              <div>
-                <img className="h-12 -mt-12" src={companyLogo(post)} alt="" />
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-baseline text-sm font-bold mt-4">
-                    <div className="text-[#5CA5A5]">{post.company}</div>
-                    <div className="text-white text-xs flex align-baseline gap-2 ml-4">
-                      {post.new ? (
-                        <span className="bg-[#5CA5A5] rounded-full px-2 pt-2 pb-1 flex items-center justify-center">
-                          NEW!
-                        </span>
-                      ) : (
-                        <></>
-                      )}
-                      {post.featured ? (
-                        <span className="bg-[#2B3939] rounded-full px-2 pt-2 pb-1 flex items-center justify-center">
-                          FEATURED
-                        </span>
-                      ) : (
-                        <></>
-                      )}
+      <div className="flex justify-center">
+        <div className="max-w-5xl flex-1 px-6 py-8 flex flex-col gap-4">
+          {/* filters */}
+          {state.filters.length > 0 ? (
+            <div className="bg-white shadow-card flex p-5 rounded-md -mt-16 items-center gap-4">
+              <div className="flex flex-wrap gap-4">
+                {state.filters.map((tag, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className="flex bg-[#5CA5A5] bg-opacity-10 text-[#5CA5A5] font-bold h-8 rounded-md overflow-hidden"
+                    >
+                      <div className="py-1 px-2 text-sm flex items-center justify-center">
+                        {tag}
+                      </div>
+                      <button
+                        type="button"
+                        title={`delete ${tag}`}
+                        className="bg-[#5CA5A5] w-8 flex items-center justify-center"
+                        onClick={() => dispatch({ type: "clear-filter", tag })}
+                      >
+                        <img src={IconRemove} alt="" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                className="ml-auto text-sm font-bold text-[#7C8F8F]"
+                onClick={() => dispatch({ type: "clear-all-filters" })}
+              >
+                Clear
+              </button>
+            </div>
+          ) : (
+            <></>
+          )}
+
+          {/* job posts */}
+          {filteredJobPosts(state).map((post) => {
+            return (
+              <div
+                key={post.id}
+                className={[
+                  "bg-white rounded-md shadow-card p-6 mt-6",
+                  post.new ? "border-l-[5px] border-l-[#5CA5A5]" : "",
+                ].join(" ")}
+              >
+                <div className="md:flex md:items-center md:gap-6">
+                  <img
+                    className="md:mt-0 md:h-20 h-12 -mt-12"
+                    src={companyLogo(post)}
+                    alt=""
+                  />
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-baseline text-sm font-bold mt-4">
+                      <div className="text-[#5CA5A5]">{post.company}</div>
+                      <div className="text-white text-xs flex align-baseline gap-2 ml-4">
+                        {post.new ? (
+                          <span className="bg-[#5CA5A5] rounded-full px-2 pt-2 pb-1 flex items-center justify-center">
+                            NEW!
+                          </span>
+                        ) : (
+                          <></>
+                        )}
+                        {post.featured ? (
+                          <span className="bg-[#2B3939] rounded-full px-2 pt-2 pb-1 flex items-center justify-center">
+                            FEATURED
+                          </span>
+                        ) : (
+                          <></>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-[#2B3939] font-bold">
+                      {post.position}
+                    </div>
+                    <div className="text-sm text-[#7C8F8F]">
+                      {post.postedAt}{" "}
+                      <span className="h-1 w-1 bg-[#B7C4C4] inline-block mb-[0.15rem] mx-1 rounded-full"></span>{" "}
+                      {post.contract}{" "}
+                      <span className="h-1 w-1 bg-[#B7C4C4] inline-block mb-[0.15rem] mx-1 rounded-full"></span>{" "}
+                      {post.location}
                     </div>
                   </div>
-                  <div className="text-[#2B3939] font-bold">
-                    {post.position}
+
+                  <hr className="md:hidden my-4 border-[#B7C4C4]" />
+                  <div className="md:ml-auto flex flex-wrap md:justify-end gap-4 text-sm text-[#5CA5A5]">
+                    {[post.role, post.level, ...post.languages, ...post.tools]
+                      .sort()
+                      .map((tag, index) => {
+                        return (
+                          <button
+                            type="button"
+                            key={index}
+                            className="px-2 flex items-center justify-center h-8 bg-[#5CA5A5] bg-opacity-10 rounded-md font-bold"
+                            onClick={() =>
+                              dispatch({ type: "add-filter", tag })
+                            }
+                          >
+                            {tag}
+                          </button>
+                        );
+                      })}
                   </div>
-                  <div className="text-sm text-[#7C8F8F]">
-                    {post.postedAt}{" "}
-                    <span className="h-1 w-1 bg-[#B7C4C4] inline-block mb-[0.15rem] mx-1 rounded-full"></span>{" "}
-                    {post.contract}{" "}
-                    <span className="h-1 w-1 bg-[#B7C4C4] inline-block mb-[0.15rem] mx-1 rounded-full"></span>{" "}
-                    {post.location}
-                  </div>
-                </div>
-                <hr className="my-4 border-[#B7C4C4]" />
-                <div className="flex flex-wrap gap-4 text-sm text-[#5CA5A5] font-bold">
-                  {[post.role, post.level, ...post.languages, ...post.tools]
-                    .sort()
-                    .map((tag, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className="px-2 flex items-center justify-center h-8 bg-[#5CA5A5] bg-opacity-10 rounded-md"
-                        >
-                          {tag}
-                        </div>
-                      );
-                    })}
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
