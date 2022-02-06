@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer } from "react";
 import Account from "../images/account.svg";
 import BgHeaderDesktop from "../images/bg-header-desktop.svg";
 import BgHeaderMobile from "../images/bg-header-mobile.svg";
@@ -121,8 +121,21 @@ function App() {
 
   return (
     <div className="bg-[#EFFAFA] min-h-full">
-      <div className="bg-[#5CA5A5]">
-        <img src={BgHeaderMobile} alt="" />
+      <div className="bg-[#5CA5A5] h-[9.75rem] md:hidden">
+        <div
+          className="h-full bg-repeat-x"
+          style={{
+            backgroundImage: `url(${BgHeaderMobile})`,
+          }}
+        ></div>
+      </div>
+      <div className="bg-[#5CA5A5] h-[9.75rem] hidden md:block">
+        <div
+          className="h-full bg-repeat-x"
+          style={{
+            backgroundImage: `url(${BgHeaderDesktop})`,
+          }}
+        ></div>
       </div>
 
       <div className="flex justify-center">
@@ -143,7 +156,7 @@ function App() {
                       <button
                         type="button"
                         title={`delete ${tag}`}
-                        className="bg-[#5CA5A5] w-8 flex items-center justify-center"
+                        className="bg-[#5CA5A5] hover:bg-[#2B3939] w-8 flex items-center justify-center"
                         onClick={() => dispatch({ type: "clear-filter", tag })}
                       >
                         <img src={IconRemove} alt="" />
@@ -154,7 +167,7 @@ function App() {
               </div>
               <button
                 type="button"
-                className="ml-auto text-sm font-bold text-[#7C8F8F]"
+                className="ml-auto text-sm font-bold text-[#7C8F8F] hover:underline"
                 onClick={() => dispatch({ type: "clear-all-filters" })}
               >
                 Clear
@@ -169,10 +182,7 @@ function App() {
             return (
               <div
                 key={post.id}
-                className={[
-                  "bg-white rounded-md shadow-card p-6 mt-6",
-                  post.new ? "border-l-[5px] border-l-[#5CA5A5]" : "",
-                ].join(" ")}
+                className="bg-white rounded-md shadow-card p-6 mt-6 border-l-[5px] hover:border-l-[#5CA5A5] border-l-white"
               >
                 <div className="md:flex md:items-center md:gap-6">
                   <img
@@ -221,7 +231,7 @@ function App() {
                           <button
                             type="button"
                             key={index}
-                            className="px-2 flex items-center justify-center h-8 bg-[#5CA5A5] bg-opacity-10 rounded-md font-bold"
+                            className="px-2 flex items-center justify-center h-8 bg-[#5CA5A5] bg-opacity-10 hover:bg-opacity-100 hover:text-white rounded-md font-bold"
                             onClick={() =>
                               dispatch({ type: "add-filter", tag })
                             }
