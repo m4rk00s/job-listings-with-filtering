@@ -159,7 +159,7 @@ function App() {
                         className="bg-[#5CA5A5] hover:bg-[#2B3939] w-8 flex items-center justify-center"
                         onClick={() => dispatch({ type: "clear-filter", tag })}
                       >
-                        <img src={IconRemove} alt="" />
+                        <img src={IconRemove} alt="Remove Icon" />
                       </button>
                     </div>
                   );
@@ -188,7 +188,7 @@ function App() {
                   <img
                     className="md:mt-0 md:h-20 h-12 -mt-12"
                     src={companyLogo(post)}
-                    alt=""
+                    alt={`${post.company} logo`}
                   />
                   <div className="flex flex-col gap-2">
                     <div className="flex items-baseline text-sm font-bold mt-4">
